@@ -1,10 +1,15 @@
 import pandas as pd
 import requests
 import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
+import os
 
+# Fetch data from the endpoint
 ENDPOINT = 'https://danepubliczne.imgw.pl/api/data/synop/'
 response = requests.get(ENDPOINT).json()
 
+# Prepare DataFrame
 df = pd.DataFrame(response)
 df['data_pomiaru'] = df['data_pomiaru'] + ' ' + df['godzina_pomiaru']
 df['data_pomiaru'] = pd.to_datetime(df['data_pomiaru'])
@@ -17,28 +22,17 @@ convert_dict = {'id_stacji':int, 'temperatura':float, 'predkosc_wiatru':int, 'ki
 # Convert columns using the dictionary
 df = df.astype(convert_dict)
 
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-from dotenv import load_dotenv
-import os
-
-# Load environment variables from .env
-load_dotenv(override=True)
-
-# Fetch variables
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("dbname")
+# Fetch environment variables from GitHub Secrets
+USER = os.getenv("DB_USER")
+PASSWORD = os.getenv("DB_PASSWORD")
+HOST = os.getenv("DB_HOST")
+PORT = os.getenv("DB_PORT")
+DBNAME = os.getenv("DB_NAME")
 
 # Construct the SQLAlchemy connection string
 DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 
 # Create the SQLAlchemy engine
-# engine = create_engine(DATABASE_URL)
-# If using Transaction Pooler or Session Pooler, we want to ensure we disable SQLAlchemy client side pooling -
-# https://docs.sqlalchemy.org/en/20/core/pooling.html#switching-pool-implementations
 engine = create_engine(DATABASE_URL, poolclass=NullPool)
 
 # Test the connection
@@ -48,6 +42,7 @@ try:
 except Exception as e:
     print(f"Failed to connect: {e}")
 
+# Function to write DataFrame to Supabase
 def write_to_supabase(df):
     df.to_sql(
         name='weather',
@@ -58,4 +53,5 @@ def write_to_supabase(df):
     )
     print("✅ Data inserted into Supabase!")
 
-write_to_supabase(df)   
+# Insert data
+write_to_supabase(df)
