@@ -9,8 +9,8 @@ A complete data pipeline project that collects current weather data from IMGW's 
 This project demonstrates how to:
 - Extract current weather data from the IMGW API
 - Transform and clean the data using Python
-- Store the data in a PostgreSQL database
-- Schedule regular updates using Apache Airflow
+- Store the data in a Supabase PostgreSQL database
+- Schedule regular updates using Github Actions
 - Visualize weather conditions across Poland using Power BI
 
 ---
@@ -18,6 +18,5 @@ This project demonstrates how to:
 ## 🧱 Architecture
 
 ```plaintext
-[IMGW API] → [Python ETL Script] → [PostgreSQL] → [Power BI Dashboard]
-                               ↘
-                            [Airflow (DAG)]
+[IMGW API] → [Python ETL Script] → [Github Actions ] → [Supabase PostgreSQL database] → [Power BI Dashboard]
+                               
