@@ -11,8 +11,10 @@ response = requests.get(ENDPOINT).json()
 
 # Prepare DataFrame
 df = pd.DataFrame(response)
+df['godzina_pomiaru'] = df['godzina_pomiaru'].str.zfill(2)
 df['data_pomiaru'] = df['data_pomiaru'] + ' ' + df['godzina_pomiaru']
-df['data_pomiaru'] = pd.to_datetime(df['data_pomiaru'])
+df['data_pomiaru'] = pd.to_datetime(df['data_pomiaru'], format="%Y-%m-%d %H")
+
 df = df.drop(columns=['godzina_pomiaru'])
 
 # Define the conversion dictionary
