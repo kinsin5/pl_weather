@@ -16,6 +16,7 @@ df['data_pomiaru'] = df['data_pomiaru'] + ' ' + df['godzina_pomiaru']
 df['data_pomiaru'] = pd.to_datetime(df['data_pomiaru'], format="%Y-%m-%d %H")
 
 df = df.drop(columns=['godzina_pomiaru'])
+df = df.fillna(0)
 
 # Define the conversion dictionary
 convert_dict = {'id_stacji':int, 'temperatura':float, 'predkosc_wiatru':int, 'kierunek_wiatru':int, 
@@ -25,11 +26,16 @@ convert_dict = {'id_stacji':int, 'temperatura':float, 'predkosc_wiatru':int, 'ki
 df = df.astype(convert_dict)
 
 # Fetch environment variables from GitHub Secrets
+
+# from dotenv import load_dotenv - use this when localy
+# load_dotenv()
 USER = os.getenv("DB_USER")
 PASSWORD = os.getenv("DB_PASSWORD")
 HOST = os.getenv("DB_HOST")
 PORT = os.getenv("DB_PORT")
 DBNAME = os.getenv("DB_NAME")
+
+print("not working")
 
 # Construct the SQLAlchemy connection string
 DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
